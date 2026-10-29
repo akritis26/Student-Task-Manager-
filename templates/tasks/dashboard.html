@@ -1,0 +1,30 @@
+{% extends 'tasks/base.html' %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<div class="page-heading d-flex justify-content-between align-items-end flex-wrap gap-3">
+  <div><span class="eyebrow">YOUR STUDY SPACE</span><h1 class="page-title mt-2">Good to see you, {{ user.first_name|default:user.username }}.</h1><p class="text-secondary mb-0">A clear plan makes a better study day.</p></div>
+  <a class="btn btn-primary" href="{% url 'tasks:task_create' %}">＋ Add a task</a>
+</div>
+{% if deadline_tasks %}
+<section class="deadline-panel mt-4" aria-labelledby="deadline-heading">
+  <div class="deadline-heading"><span class="deadline-icon" aria-hidden="true">!</span><div><span class="eyebrow">DEADLINE REMINDER</span><h2 id="deadline-heading">{{ deadline_tasks|length }} task{{ deadline_tasks|length|pluralize }} with a deadline coming up</h2><p>These pending tasks are due within the next two days or are overdue.</p></div></div>
+  <div class="deadline-list">
+  {% for task in deadline_tasks %}
+    <a class="deadline-item {% if task.due_date < today %}is-overdue{% elif task.due_date == today %}is-today{% endif %}" href="{% url 'tasks:task_update' task.pk %}">
+      <span class="deadline-task-title">{{ task.title }}</span><span class="deadline-subject">{{ task.subject }}</span>
+      <strong class="deadline-label">{% if task.due_date < today %}Overdue · {{ task.due_date|date:"M j" }}{% elif task.due_date == today %}Due today{% elif task.due_date == tomorrow %}Due tomorrow{% else %}Due {{ task.due_date|date:"M j" }}{% endif %}</strong>
+    </a>
+  {% endfor %}
+  </div>
+</section>
+{% endif %}
+<div class="row g-3 mt-3">
+  <div class="col-6 col-lg-3"><div class="stat-card"><span>All tasks</span><strong>{{ total_count }}</strong><small>in your list</small></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><span>To do</span><strong>{{ pending_count }}</strong><small>ready for you</small></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><span>Completed</span><strong>{{ completed_count }}</strong><small>nice work</small></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><span>Overdue</span><strong>{{ overdue_count }}</strong><small>still manageable</small></div></div>
+</div>
+<section class="panel mt-4"><div class="d-flex justify-content-between align-items-center"><div><span class="eyebrow">UP NEXT</span><h2 class="section-title mt-1">Upcoming tasks</h2></div><a class="text-link" href="{% url 'tasks:task_list' %}">View all →</a></div>
+{% for task in upcoming_tasks %}<div class="task-row"><div class="task-symbol">{{ task.subject|first|upper }}</div><div class="task-main"><strong>{{ task.title }}</strong><small>{{ task.subject }} · Due {{ task.due_date|date:"M j, Y" }}</small></div><span class="badge priority-{{ task.priority|lower }}">{{ task.priority }}</span><form method="post" action="{% url 'tasks:task_toggle' task.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'tasks:dashboard' %}"><button class="btn btn-sm btn-outline-primary">Complete</button></form></div>
+{% empty %}<div class="empty-state"><div class="empty-illustration">✦</div><h3>You’re all caught up</h3><p>Add a task whenever something new comes up.</p><a href="{% url 'tasks:task_create' %}" class="btn btn-outline-primary">Add your first task</a></div>{% endfor %}</section>
+{% endblock %}

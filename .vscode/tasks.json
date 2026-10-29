@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Django: Apply migrations",
+            "type": "process",
+            "command": "${workspaceFolder}/venv/bin/python",
+            "args": ["manage.py", "migrate"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        }
+    ]
+}
